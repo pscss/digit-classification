@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
 from sklearn import svm, datasets, metrics
+import itertools
 
 """ 
 Common functions:
@@ -24,9 +25,9 @@ def split_data(X, y, test_size, random_state=1):
 
 def split_train_dev_test(X, y, test_size, dev_size, random_state=1):
     test_dev_size = test_size + dev_size
-    if test_dev_size > 0.5:
+    if test_dev_size >= 0.9:
         raise ValueError(
-            f"Total test and Dev data cannot be more than 50% of entire data"  # noqa
+            "Total test and Dev data cannot be more than 90% of entire data"
         )
     X_train, X_test_dev, y_train, y_test_dev = train_test_split(
         X,
@@ -65,3 +66,25 @@ def predict_and_eval(model, X_test, y_test):
     #     f"{metrics.classification_report(y_test, predicted)}\n"
     # )
     return metrics.accuracy_score(y_test, predicted)
+
+
+def get_combinations_with_keys(grid):
+    lists = grid.values()
+    keys = grid.keys()
+    combinations = list(itertools.product(*lists))
+    return [dict(zip(keys, combination)) for combination in combinations]
+
+
+def tune_hparams(X_train, X_dev, y_train, y_dev, h_params_grid):
+    best_accuracy = -1
+    best_model = None
+    best_params = {}
+
+    for h_params in get_combinations_with_keys(h_params_grid):
+        cur_model = train_model(X_train, y_train, h_params, model_type="svm")
+        cur_accuracy = predict_and_eval(cur_model, X_dev, y_dev)
+        if cur_accuracy > best_accuracy:
+            best_accuracy = cur_accuracy
+            best_params = h_params
+            best_model = cur_model
+    return best_model, best_params, best_accuracy

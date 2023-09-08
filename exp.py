@@ -15,9 +15,13 @@ import itertools
 import utils
 
 # gamma_ranges = [0.001, 0.01, 0.1, 1, 10, 100]
-gamma_ranges = [0.001]
+# gamma_ranges = [0.001]
 # C_ranges = [0.1, 1, 2, 5, 10]
-C_ranges = [2]
+# C_ranges = [2]
+h_params_grid = {
+    "gamma": [0.001, 0.01, 0.1, 1, 10, 100],
+    "C": [0.1, 1, 2, 5, 10],
+}
 
 
 ###############################################################################
@@ -64,32 +68,49 @@ X_dev = utils.preprocess_data(X_dev)
 X_test = utils.preprocess_data(X_test)
 
 
-# HYPER PARAMETERS TUNING
-
-# -take all combinations of gamma and C_ranges
-best_accuracy_so_far = -1
-best_model = None
-
-for cur_gamma, cur_C in itertools.product(gamma_ranges, C_ranges):
-    cur_model = utils.train_model(
-        X_train, y_train, {"gamma": cur_gamma, "C": cur_C}, model_type="svm"
+size_grid = {"test_size": [0.1, 0.2, 0.3], "dev_size": [0.1, 0.2, 0.3]}
+combinations = utils.get_combinations_with_keys(size_grid)
+for combination in combinations:
+    test_size = combination["test_size"]
+    dev_size = combination["dev_size"]
+    train_size = 1 - (test_size + dev_size)
+    if train_size <= 0:
+        raise ValueError("Sum of test and dev should be less than 1")
+    (
+        X_train,
+        X_dev,
+        X_test,
+        y_train,
+        y_dev,
+        y_test,
+    ) = utils.split_train_dev_test(X, y, test_size, dev_size)
+    X_train = utils.preprocess_data(X_train)
+    X_dev = utils.preprocess_data(X_dev)
+    X_test = utils.preprocess_data(X_test)
+    best_model, best_params, dev_accuracy = utils.tune_hparams(
+        X_train, X_dev, y_train, y_dev, h_params_grid
     )
-    cur_accuracy = utils.predict_and_eval(cur_model, X_dev, y_dev)
-    if cur_accuracy > best_accuracy_so_far:
-        print("New best accuracy: ", cur_accuracy)
-        best_accuracy_so_far = cur_accuracy
-        optimal_gamma = cur_gamma
-        optimal_C = cur_C
-        best_model = cur_model
-print("Optimal parameters gamma: ", optimal_gamma, "C: ", optimal_C)
+    train_accuracy = utils.predict_and_eval(best_model, X_train, y_train)
+    test_accuracy = utils.predict_and_eval(best_model, X_test, y_test)
+    # print("Optimal parameters: ", best_params)
+    print(
+        f"test_size={test_size} dev_size={dev_size} train_size={train_size} train_acc={train_accuracy} dev_acc={dev_accuracy} test_acc={test_accuracy}"  # noqa
+    )
+
+
+# HYPER PARAMETERS TUNING
+# best_model, best_params, best_accuracy = utils.tune_hparams(
+#     X_train, X_dev, y_train, y_dev, h_params_grid
+# )
+# print("Optimal parameters: ", best_params)
 
 # 4. Model initialization and model fit
 # Create a classifier: a support vector classifier
-# model = utils.train_model(X_train, y_train, {"gamma": 0.001})
+# model = utils.train_model(X_train, y_train, {"gamma": 0.001, "C": 2})
 
 
 # 5. Predict and Evaluation:
-accuracy = utils.predict_and_eval(best_model, X_dev, y_dev)
+# accuracy = utils.predict_and_eval(best_model, X_dev, y_dev)
 # if accuracy < 0.8:
 #     raise ValueError("Change parameters to get higher accuracy than 80%.")
 
@@ -97,49 +118,11 @@ accuracy = utils.predict_and_eval(best_model, X_dev, y_dev)
 # 6. Testing on Test data:
 # print()
 # print("Testing model for Robustness")
-test_accuracy = utils.predict_and_eval(best_model, X_dev, y_dev)
-print(
-    f"""
-Validation and Test accuracies of the model are:
-validation accuracy {accuracy}
-test accuracy   {test_accuracy}
-"""
-)
-
-
-###############################################################################
-# We can also plot a :ref:`confusion matrix <confusion_matrix>` of the
-# true digit values and the predicted digit values.
-
-# disp = metrics.ConfusionMatrixDisplay.from_predictions(y_test, predicted)
-# disp.figure_.suptitle("Confusion Matrix")
-
-
-# cm = metrics.confusion_matrix(y_test, predicted)
-# print(f"Confusion matrix:\n{cm}")
-
-# plt.show()
-
-###############################################################################
-# If the results from evaluating a classifier are stored in the form of a
-# :ref:`confusion matrix <confusion_matrix>` and not in terms of `y_true` and
-# `y_pred`, one can still build a :func:`~sklearn.metrics.classification_report`
-# as follows:
-
-
-# The ground truth and predicted lists
-# y_true = []
-# y_pred = []
-# # cm = disp.confusion_matrix
-
-# # For each cell in the confusion matrix, add the corresponding ground truths
-# # and predictions to the lists
-# for gt in range(len(cm)):
-#     for pred in range(len(cm)):
-#         y_true += [gt] * cm[gt][pred]
-#         y_pred += [pred] * cm[gt][pred]
-
+# test_accuracy = utils.predict_and_eval(best_model, X_dev, y_dev)
 # print(
-#     "Classification report rebuilt from confusion matrix:\n"
-#     f"{metrics.classification_report(y_true, y_pred)}\n"
+#     f"""
+# Validation and Test accuracies of the model are:
+# validation accuracy {accuracy}
+# test accuracy   {test_accuracy}
+# """
 # )
