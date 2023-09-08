@@ -58,11 +58,10 @@ def read_digits():
 
 def predict_and_eval(model, X_test, y_test):
     predicted = model.predict(X_test)
-    cm = metrics.confusion_matrix(y_test, predicted)
-    print(f"Confusion matrix:\n{cm}")
-    print(
-        f"Classification report for classifier {model}:\n"
-        f"{metrics.classification_report(y_test, predicted)}\n"
-    )
-    accuracy = metrics.accuracy_score(y_test, predicted)
-    return accuracy
+    # cm = metrics.confusion_matrix(y_test, predicted)
+    # print(f"Confusion matrix:\n{cm}")
+    # print(
+    #     f"Classification report for classifier {model}:\n"
+    #     f"{metrics.classification_report(y_test, predicted)}\n"
+    # )
+    return metrics.accuracy_score(y_test, predicted)
