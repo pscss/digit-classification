@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
 from sklearn import svm, datasets, metrics
+from sklearn.model_selection import ParameterGrid
 import itertools
 
 """ 
@@ -80,11 +81,13 @@ def tune_hparams(X_train, X_dev, y_train, y_dev, h_params_grid):
     best_model = None
     best_params = {}
 
-    for h_params in get_combinations_with_keys(h_params_grid):
+    for h_params in ParameterGrid(h_params_grid):
         cur_model = train_model(X_train, y_train, h_params, model_type="svm")
         cur_accuracy = predict_and_eval(cur_model, X_dev, y_dev)
+
         if cur_accuracy > best_accuracy:
             best_accuracy = cur_accuracy
             best_params = h_params
             best_model = cur_model
+
     return best_model, best_params, best_accuracy
