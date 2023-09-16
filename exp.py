@@ -57,15 +57,15 @@ X, y = utils.read_digits()
 # in the test subset.
 
 # 2. Data splitting -- to create train and test sets
-X_train, X_dev, X_test, y_train, y_dev, y_test = utils.split_train_dev_test(
-    X, y, test_size=0.2, dev_size=0.3
-)
+# X_train, X_dev, X_test, y_train, y_dev, y_test = utils.split_train_dev_test(
+#     X, y, test_size=0.2, dev_size=0.3
+# )
 
 
-# 3. Data preprocessing
-X_train = utils.preprocess_data(X_train)
-X_dev = utils.preprocess_data(X_dev)
-X_test = utils.preprocess_data(X_test)
+# # 3. Data preprocessing
+# X_train = utils.preprocess_data(X_train)
+# X_dev = utils.preprocess_data(X_dev)
+# X_test = utils.preprocess_data(X_test)
 
 
 size_grid = {"test_size": [0.1, 0.2, 0.3], "dev_size": [0.1, 0.2, 0.3]}
