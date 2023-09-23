@@ -21,5 +21,7 @@ jobs:
       - run: echo "installing all requirements of the repo -- Quiz addition"
       - name: Install dep
         run:  pip3 install --no-cache-dir -r requirements.txt
+      - name: Running test cases
+        run: pytest
       - name: Run python file
         run: python exp.py
