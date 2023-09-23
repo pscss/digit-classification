@@ -52,7 +52,11 @@ print()
 shapes = [(4, 4), (6, 6), (8, 8)]
 for shape in shapes:
     div = round(X.shape[1] / shape[0], 4)
-    new_X = [rescale(x, div, anti_aliasing=True) for x in X]
+    new_X = resize(
+        X,
+        (X.shape[0] // 1, X.shape[1] // div, X.shape[2] // div),
+        anti_aliasing=True,
+    )
     size_grid = {"test_size": [0.2], "dev_size": [0.1]}
     combinations = utils.get_combinations_with_keys(size_grid)
     for combination in combinations:
@@ -69,9 +73,9 @@ for shape in shapes:
             y_dev,
             y_test,
         ) = utils.split_train_dev_test(new_X, y, test_size, dev_size)
-        # X_train = utils.preprocess_data(X_train)
-        # X_dev = utils.preprocess_data(X_dev)
-        # X_test = utils.preprocess_data(X_test)
+        X_train = utils.preprocess_data(X_train)
+        X_dev = utils.preprocess_data(X_dev)
+        X_test = utils.preprocess_data(X_test)
         best_model, best_params, dev_accuracy = utils.tune_hparams(
             X_train, X_dev, y_train, y_dev, h_params_grid
         )
