@@ -41,6 +41,14 @@ h_params_grid = {
 # 1. Data Sourcing
 X, y = utils.read_digits()
 
+print("Sample Information:")
+print(f"Total Samples -> {X.shape[0]}")
+print(f"Shape of the images in (height, width) -> {X.shape[1:]}")
+print()
+
+# QUIZ STATEMENTS
+
+
 ###############################################################################
 # Classification
 # --------------
