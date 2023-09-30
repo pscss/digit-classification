@@ -8,11 +8,8 @@ hand-written digits, from 0-9.
 
 """
 # Author: Prateek Singhal
-
-
-import itertools
-
 import utils
+from joblib import load
 
 # gamma_ranges = [0.001, 0.01, 0.1, 1, 10, 100]
 # gamma_ranges = [0.001]
@@ -87,9 +84,10 @@ for combination in combinations:
     X_train = utils.preprocess_data(X_train)
     X_dev = utils.preprocess_data(X_dev)
     X_test = utils.preprocess_data(X_test)
-    best_model, best_params, dev_accuracy = utils.tune_hparams(
+    best_model_path, best_params, dev_accuracy = utils.tune_hparams(
         X_train, X_dev, y_train, y_dev, h_params_grid
     )
+    best_model = load(best_model_path)
     train_accuracy = utils.predict_and_eval(best_model, X_train, y_train)
     test_accuracy = utils.predict_and_eval(best_model, X_test, y_test)
     # print("Optimal parameters: ", best_params)
