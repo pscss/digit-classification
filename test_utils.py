@@ -79,7 +79,7 @@ def test_is_model_saved():
     X_train, y_train, X_dev, y_dev = create_dummy_dataset()
     h_params_grid = create_dummy_hparams()
     best_model_path, _, accuracy = utils.tune_hparams(
-        X_train, X_dev, y_train, y_dev, h_params_grid
+        X_train, X_dev, y_train, y_dev, h_params_grid, "svm"
     )
     assert os.path.exists(best_model_path)
     assert os.path.getsize(best_model_path) > 0
