@@ -1,6 +1,7 @@
 from sklearn.model_selection import train_test_split
 from sklearn import svm, datasets, metrics
 from sklearn.model_selection import ParameterGrid
+from joblib import dump
 import itertools
 
 """ 
@@ -30,11 +31,9 @@ def split_train_dev_test(X, y, test_size, dev_size, random_state=1):
         raise ValueError(
             "Total test and Dev data cannot be more than 90% of entire data"
         )
+
     X_train, X_test_dev, y_train, y_test_dev = train_test_split(
-        X,
-        y,
-        test_size=test_dev_size,
-        random_state=random_state,
+        X, y, test_size=test_dev_size, random_state=random_state
     )
     X_test, X_dev, y_test, y_dev = train_test_split(
         X_test_dev,
@@ -42,6 +41,7 @@ def split_train_dev_test(X, y, test_size, dev_size, random_state=1):
         test_size=dev_size / test_dev_size,
         random_state=random_state,
     )
+
     return X_train, X_dev, X_test, y_train, y_dev, y_test
 
 
@@ -89,5 +89,7 @@ def tune_hparams(X_train, X_dev, y_train, y_dev, h_params_grid):
             best_accuracy = cur_accuracy
             best_params = h_params
             best_model = cur_model
+            best_model_path = f'./models/best_model_{"_".join([f"{k}-{v}" for k, v in best_params.items()])}.joblib'  # noqa
+            dump(best_model, best_model_path)
 
-    return best_model, best_params, best_accuracy
+    return best_model_path, best_params, best_accuracy

@@ -1,12 +1,29 @@
 import utils
+from joblib import load
+import os
+
+
+def create_dummy_dataset():
+    X, y = utils.read_digits()
+    X_train = X[:100, :, :]
+    y_train = y[:100]
+    X_dev = X[:50, :, :]
+    y_dev = y[:50]
+    X_train = utils.preprocess_data(X_train)
+    X_dev = utils.preprocess_data(X_dev)
+    return X_train, y_train, X_dev, y_dev
+
+
+def create_dummy_hparams():
+    return {
+        "gamma": [0.001, 0.01, 0.1, 1, 10, 100],
+        "C": [0.1, 1, 2, 5, 10],
+    }
 
 
 def test_hparams_combinations():
     # a test case to check all possible combinations of hyper parameters
-    h_params_grid = {
-        "gamma": [0.001, 0.01, 0.1, 1, 10, 100],
-        "C": [0.1, 1, 2, 5, 10],
-    }
+    h_params_grid = create_dummy_hparams()
     h_param_combinations = utils.get_combinations_with_keys(h_params_grid)
 
     assert len(h_param_combinations) == len(h_params_grid["gamma"]) * len(
@@ -16,10 +33,7 @@ def test_hparams_combinations():
 
 def test_hparams_combinations_values():
     # a test case to check all possible combinations of hyper parameters values
-    h_params_grid = {
-        "gamma": [0.001, 0.01, 0.1, 1, 10, 100],
-        "C": [0.1, 1, 2, 5, 10],
-    }
+    h_params_grid = create_dummy_hparams()
     h_param_combinations = utils.get_combinations_with_keys(h_params_grid)
 
     assert len(h_param_combinations) == len(h_params_grid["gamma"]) * len(
@@ -30,3 +44,46 @@ def test_hparams_combinations_values():
 
     assert expected_parma_combo_1 in h_param_combinations
     assert expected_parma_combo_2 in h_param_combinations
+
+
+def test_data_splitting():
+    X, y = utils.read_digits()
+    X = X[:100, :, :]
+    y = y[:100]
+    test_size = 0.1
+    dev_size = 0.6
+    train_size = 1 - (test_size + dev_size)
+    print(train_size)
+    (
+        X_train,
+        X_dev,
+        X_test,
+        y_train,
+        y_dev,
+        y_test,
+    ) = utils.split_train_dev_test(
+        X, y, test_size=test_size, dev_size=dev_size
+    )
+    print(f"{len(X_train)},{len(X_dev)},{len(X_test)}")
+    assert len(X_train) + len(X_dev) + len(X_test) == 100
+    assert len(y_train) + len(y_dev) + len(y_test) == 100
+    assert 29 <= (len(X_train)) <= 31
+    assert 29 <= (len(y_train)) <= 31
+    assert 59 <= (len(X_dev)) <= 61
+    assert 59 <= (len(y_dev)) <= 61
+    assert 9 <= (len(X_test)) <= 11
+    assert 9 <= (len(y_test)) <= 11
+
+
+def test_is_model_saved():
+    X_train, y_train, X_dev, y_dev = create_dummy_dataset()
+    h_params_grid = create_dummy_hparams()
+    best_model_path, _, accuracy = utils.tune_hparams(
+        X_train, X_dev, y_train, y_dev, h_params_grid
+    )
+    assert os.path.exists(best_model_path)
+    assert os.path.getsize(best_model_path) > 0
+    assert best_model_path.endswith(".joblib")
+    best_model = load(best_model_path)
+    assert best_model is not None
+    assert accuracy == utils.predict_and_eval(best_model, X_dev, y_dev)
