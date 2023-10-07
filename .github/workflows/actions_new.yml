@@ -24,4 +24,4 @@ jobs:
       - name: Running test cases
         run: pytest
       - name: Run python file
-        run: python exp.py
+        run: python exp.py --hyperparameters hyperparameters.json
