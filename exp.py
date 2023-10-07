@@ -23,11 +23,13 @@ hand-written digits, from 0-9.
 # Author: Prateek Singhal
 import utils
 from joblib import load
+import pandas as pd
 
 # 1. Size parameters for setting up test
 
 # size_grid = {"test_size": [0.1, 0.2, 0.3], "dev_size": [0.1, 0.2, 0.3]}
 size_grid = {"test_size": [0.2], "dev_size": [0.2]}
+number_of_runs = 5
 
 ###############################################################################
 
@@ -45,6 +47,7 @@ h_parameters_grid = {"svm": svm_h_params_grid, "tree": tree_h_params_grid}
 
 ###############################################################################
 
+
 # 3. Data Sourcing
 X, y = utils.read_digits()
 
@@ -52,33 +55,47 @@ print("Sample Information:")
 print(f"Total Samples -> {X.shape[0]}")
 print(f"Shape of the images in (height, width) -> {X.shape[1:]}")
 
-
+results_list = []
 combinations = utils.get_combinations_with_keys(size_grid)
-for combination in combinations:
-    test_size = combination["test_size"]
-    dev_size = combination["dev_size"]
-    train_size = 1 - (test_size + dev_size)
-    if train_size <= 0:
-        raise ValueError("Sum of test and dev should be less than 1")
-    (
-        X_train,
-        X_dev,
-        X_test,
-        y_train,
-        y_dev,
-        y_test,
-    ) = utils.split_train_dev_test(X, y, test_size, dev_size)
-    X_train = utils.preprocess_data(X_train)
-    X_dev = utils.preprocess_data(X_dev)
-    X_test = utils.preprocess_data(X_test)
-    for clf, h_params_grid in h_parameters_grid.items():
-        best_model_path, best_params, dev_accuracy = utils.tune_hparams(
-            X_train, X_dev, y_train, y_dev, h_params_grid, clf
-        )
-        best_model = load(best_model_path)
-        train_accuracy = utils.predict_and_eval(best_model, X_train, y_train)
-        test_accuracy = utils.predict_and_eval(best_model, X_test, y_test)
-        print("Optimal parameters: ", best_params)
-        print(
-            f"model_type = {clf} test_size={test_size} dev_size={dev_size} train_size={train_size} train_acc={train_accuracy} dev_acc={dev_accuracy} test_acc={test_accuracy}"  # noqa
-        )
+for run_id in range(number_of_runs):
+    for combination in combinations:
+        test_size = combination["test_size"]
+        dev_size = combination["dev_size"]
+        train_size = 1 - (test_size + dev_size)
+        if train_size <= 0:
+            raise ValueError("Sum of test and dev should be less than 1")
+        (
+            X_train,
+            X_dev,
+            X_test,
+            y_train,
+            y_dev,
+            y_test,
+        ) = utils.split_train_dev_test(X, y, test_size, dev_size)
+        X_train = utils.preprocess_data(X_train)
+        X_dev = utils.preprocess_data(X_dev)
+        X_test = utils.preprocess_data(X_test)
+        for clf, h_params_grid in h_parameters_grid.items():
+            best_model_path, best_params, dev_accuracy = utils.tune_hparams(
+                X_train, X_dev, y_train, y_dev, h_params_grid, clf
+            )
+            best_model = load(best_model_path)
+            train_accuracy = utils.predict_and_eval(
+                best_model, X_train, y_train
+            )
+            test_accuracy = utils.predict_and_eval(best_model, X_test, y_test)
+            print("Optimal parameters: ", best_params)
+            print(
+                f"model_type = {clf} test_size={test_size} dev_size={dev_size} train_size={train_size} train_acc={train_accuracy} dev_acc={dev_accuracy} test_acc={test_accuracy}"  # noqa
+            )
+            run_result_dict = {
+                "run_id": run_id,
+                "model_type": clf,
+                "train_accuracy": round(train_accuracy, 2),
+                "test_accuracy": round(test_accuracy, 2),
+                "dev_accuracy": round(dev_accuracy, 2),
+            }
+            results_list.append(run_result_dict)
+
+df = pd.DataFrame(results_list)
+print(df.groupby("model_type").describe().T)

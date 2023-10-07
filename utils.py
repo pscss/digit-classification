@@ -17,10 +17,7 @@ def preprocess_data(data):
 
 def split_data(X, y, test_size, random_state=1):
     X_train, X_test, y_train, y_test = train_test_split(
-        X,
-        y,
-        test_size=test_size,
-        random_state=random_state,
+        X, y, test_size=test_size, shuffle=True
     )
     return X_train, X_test, y_train, y_test
 
