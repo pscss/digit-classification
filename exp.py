@@ -7,6 +7,7 @@ This example shows how scikit-learn can be used to recognize images of
 hand-written digits, from 0-9.
 
 """
+
 # Digits dataset
 # --------------
 #
@@ -24,29 +25,43 @@ hand-written digits, from 0-9.
 import utils
 from joblib import load
 import pandas as pd
+import argparse
+import json
+
+
+parser = argparse.ArgumentParser(
+    description="Machine Learning Experimentation Script"
+)
+parser.add_argument(
+    "--test-size", type=float, default=0.2, help="Size of the test set"
+)
+parser.add_argument(
+    "--dev-size",
+    type=float,
+    default=0.2,
+    help="Size of the development (dev) set",
+)
+parser.add_argument("--num-runs", type=int, default=5, help="Number of runs")
+parser.add_argument(
+    "--hyperparameters",
+    type=str,
+    required=True,
+    help="JSON file containing hyperparameters",
+)
+
+# Parse command-line arguments
+args = parser.parse_args()
 
 # 1. Size parameters for setting up test
+size_grid = {"test_size": [args.test_size], "dev_size": [args.dev_size]}
+number_of_runs = args.num_runs
 
-# size_grid = {"test_size": [0.1, 0.2, 0.3], "dev_size": [0.1, 0.2, 0.3]}
-size_grid = {"test_size": [0.2], "dev_size": [0.2]}
-number_of_runs = 5
+# 2. Model Hyperparameters
+with open(args.hyperparameters, "r") as json_file:
+    h_parameters_grid = json.load(json_file)
 
-###############################################################################
-
-# 2. Hyper parameters
-# 2.1 - SVM hyperparameters
-svm_h_params_grid = {
-    "gamma": [0.001, 0.01, 0.1, 1, 10, 100],
-    "C": [0.1, 1, 2, 5, 10],
-}
-# 2.2 Tree hyperparameters
-tree_h_params_grid = {
-    "max_depth": [5, 10, 15, 20, 50, 100],
-}
-h_parameters_grid = {"svm": svm_h_params_grid, "tree": tree_h_params_grid}
-
-###############################################################################
-
+if not h_parameters_grid:
+    raise ValueError("At-least one hyperparameter should be provided")
 
 # 3. Data Sourcing
 X, y = utils.read_digits()
