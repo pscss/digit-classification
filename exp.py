@@ -27,6 +27,8 @@ from joblib import load
 import pandas as pd
 import argparse
 import json
+from sklearn import metrics
+import numpy as np
 
 
 parser = argparse.ArgumentParser(
@@ -41,7 +43,7 @@ parser.add_argument(
     default=0.2,
     help="Size of the development (dev) set",
 )
-parser.add_argument("--num-runs", type=int, default=5, help="Number of runs")
+parser.add_argument("--num-runs", type=int, default=1, help="Number of runs")
 parser.add_argument(
     "--hyperparameters",
     type=str,
@@ -98,19 +100,38 @@ for run_id in range(number_of_runs):
             train_accuracy = utils.predict_and_eval(
                 best_model, X_train, y_train
             )
+            cm = metrics.confusion_matrix(y_test, best_model.predict(X_test))
+
+            # FP = cm.sum(axis=0) - np.diag(cm)
+            # FN = cm.sum(axis=1) - np.diag(cm)
+            # TP = np.diag(cm)
+            # TN = cm.values.sum() - (FP + FN + TP)
             test_accuracy = utils.predict_and_eval(best_model, X_test, y_test)
-            print("Optimal parameters: ", best_params)
+            # print("Optimal parameters: ", best_params)
             print(
                 f"model_type = {clf} test_size={test_size} dev_size={dev_size} train_size={train_size} train_acc={train_accuracy} dev_acc={dev_accuracy} test_acc={test_accuracy}"  # noqa
             )
-            run_result_dict = {
-                "run_id": run_id,
-                "model_type": clf,
-                "train_accuracy": round(train_accuracy, 2),
-                "test_accuracy": round(test_accuracy, 2),
-                "dev_accuracy": round(dev_accuracy, 2),
-            }
-            results_list.append(run_result_dict)
+            print(f"Confusion matrix for {clf}:\n{cm}")
+            f1_score = metrics.f1_score(
+                y_test, best_model.predict(X_test), average="weighted"
+            )
+            print(f"F1 Score for {clf} -> {f1_score}")
+            FP = cm.sum(axis=0) - np.diag(cm)
+            FN = cm.sum(axis=1) - np.diag(cm)
+            TP = np.diag(cm)
+            TN = cm.sum() - (FP + FN + TP)
+            print(f"2x2 confusion matrix for model {clf}")
+            cm2 = ([[sum(TN), sum(FP)], [sum(FN), sum(TP)]])
+            print(cm2)
 
-df = pd.DataFrame(results_list)
-print(df.groupby("model_type").describe().T)
+            # run_result_dict = {
+            #     "run_id": run_id,
+            #     "model_type": clf,
+            #     "train_accuracy": round(train_accuracy, 2),
+            #     "test_accuracy": round(test_accuracy, 2),
+            #     "dev_accuracy": round(dev_accuracy, 2),
+            # }
+            # results_list.append(run_result_dict)
+
+# df = pd.DataFrame(results_list)
+# print(df.groupby("model_type").describe().T)
