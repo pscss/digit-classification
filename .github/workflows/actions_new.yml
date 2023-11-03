@@ -32,9 +32,10 @@ jobs:
       - name: Run docker image
         run: |
           echo "listing empty models directory"
-          ls -lh models
+          mkdir save_models
+          ls -lh save_models
           echo "Runnig docker image"
-          docker run -v ./models:/digits/models digits:v1
-          echo "listing models directory after image run"
-          ls -lh models
+          docker run -v ./save_models:/digits/models digits:v1
+          echo "listing save_models directory after image run"
+          ls -lh save_models
 
