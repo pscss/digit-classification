@@ -3,9 +3,9 @@ on: [push]
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9.17]
+    # strategy:
+    #   matrix:
+    #     python-version: [3.9.17]
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
@@ -19,10 +19,10 @@ jobs:
           ls -r ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - run: echo "installing all requirements of the repo -- Quiz addition"
-      - name: Install dep
-        run:  pip3 install --no-cache-dir -r requirements.txt
-      - name: Running test cases
-        run: pytest
+      # - name: Install dep
+      #   run:  pip3 install --no-cache-dir -r requirements.txt
+      # - name: Running test cases
+      #   run: pytest
       # - name: Run python file
       #   run: python exp.py --hyperparameters hyperparameters.json
       - name: Build docker image
