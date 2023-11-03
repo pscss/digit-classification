@@ -25,17 +25,8 @@ jobs:
       #   run: pytest
       # - name: Run python file
       #   run: python exp.py --hyperparameters hyperparameters.json
-      - name: Build docker image
+      - name: Build and run docker image
         run: |
-          echo "Building docker image"
-          docker build -t digits:v1 -f docker/Dockerfile .
-      - name: Run docker image
-        run: |
-          echo "listing empty models directory"
-          mkdir save_models
-          ls -lh save_models
-          echo "Runnig docker image"
-          docker run -v ./save_models:/digits/models digits:v1
-          echo "listing save_models directory after image run"
-          ls -lh save_models
+          chmod +x docker_run.sh
+          sh ./docker_run.sh
 
