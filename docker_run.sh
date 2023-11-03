@@ -1,7 +1,22 @@
 #!/bin/bash
 
-# Run pytest for testing
-pytest
+# Step 1: Build Docker Image
+echo "Building Docker image"
+docker build -t digits:v1 -f docker/Dockerfile .
 
-# Run your Python script with hyperparameters
-python exp.py --hyperparameters hyperparameters.json
+# Step 2: Run Docker Image
+echo "Creating an empty 'save_models' directory"
+mkdir save_models
+
+echo "Listing contents of 'save_models' directory (before running Docker image)"
+ls -lh save_models
+
+echo "Running Docker image"
+docker run -v "$(pwd)/save_models:/digits/models" digits:v1
+
+echo "Listing contents of 'save_models' directory (after running Docker image)"
+ls -lh save_models
+
+# Step 3: Delete 'save_models' directory
+echo "Deleting the 'save_models' directory"
+rm -rf save_models

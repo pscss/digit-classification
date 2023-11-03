@@ -2,6 +2,6 @@ FROM python:3.9.17
 COPY . /digits/
 WORKDIR /digits
 RUN pip install -r requirements.txt
-RUN chmod +x docker_run.sh
+RUN chmod +x entrypoint.sh
 VOLUME /digits/models
-CMD ["./docker_run.sh"]
+CMD ["./entrypoint.sh"]
