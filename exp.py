@@ -66,9 +66,9 @@ if not h_parameters_grid:
 # 3. Data Sourcing
 X, y = utils.read_digits()
 
-print("Sample Information:")
-print(f"Total Samples -> {X.shape[0]}")
-print(f"Shape of the images in (height, width) -> {X.shape[1:]}")
+# print("Sample Information:")
+# print(f"Total Samples -> {X.shape[0]}")
+# print(f"Shape of the images in (height, width) -> {X.shape[1:]}")
 
 results_list = []
 combinations = utils.get_combinations_with_keys(size_grid)
@@ -99,10 +99,10 @@ for run_id in range(number_of_runs):
                 best_model, X_train, y_train
             )
             test_accuracy = utils.predict_and_eval(best_model, X_test, y_test)
-            print("Optimal parameters: ", best_params)
-            print(
-                f"model_type = {clf} test_size={test_size} dev_size={dev_size} train_size={train_size} train_acc={train_accuracy} dev_acc={dev_accuracy} test_acc={test_accuracy}"  # noqa
-            )
+            # print("Optimal parameters: ", best_params)
+            # print(
+            #     f"model_type = {clf} test_size={test_size} dev_size={dev_size} train_size={train_size} train_acc={train_accuracy} dev_acc={dev_accuracy} test_acc={test_accuracy}"  # noqa
+            # )
             run_result_dict = {
                 "run_id": run_id,
                 "model_type": clf,
@@ -113,4 +113,5 @@ for run_id in range(number_of_runs):
             results_list.append(run_result_dict)
 
 df = pd.DataFrame(results_list)
-print(df.groupby("model_type").describe().T)
+# print(df.groupby("model_type").describe().T)
+print("Models trained successfully")
