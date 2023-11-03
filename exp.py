@@ -99,10 +99,10 @@ for run_id in range(number_of_runs):
                 best_model, X_train, y_train
             )
             test_accuracy = utils.predict_and_eval(best_model, X_test, y_test)
-            # print("Optimal parameters: ", best_params)
-            # print(
-            #     f"model_type = {clf} test_size={test_size} dev_size={dev_size} train_size={train_size} train_acc={train_accuracy} dev_acc={dev_accuracy} test_acc={test_accuracy}"  # noqa
-            # )
+            print("Optimal parameters: ", best_params)
+            print(
+                f"model_type = {clf} test_size={test_size} dev_size={dev_size} train_size={train_size} train_acc={train_accuracy} dev_acc={dev_accuracy} test_acc={test_accuracy}"  # noqa
+            )
             run_result_dict = {
                 "run_id": run_id,
                 "model_type": clf,
