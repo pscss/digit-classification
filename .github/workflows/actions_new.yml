@@ -31,7 +31,6 @@ jobs:
           docker build -t digits:v1 -f docker/Dockerfile .
       - name: Run docker image
         run: |
-          mkdir models
           echo "listing empty models directory"
           ls -lh models
           echo "Runnig docker image"
