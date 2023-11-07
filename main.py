@@ -27,13 +27,13 @@ def sum_num(x, y):
 
 @app.route("/model", methods=["POST"])
 def pred_model():
-    js = request.get_json()
-    x = js["x"]
-    y = js["y"]
-    x = int(x)
-    y = int(y)
-    return "<p>sum is " + str(x + y) + "</p>"
+    data = request.get_json()
+    x = int(data["x"])
+    y = int(data["y"])
+    result = x + y
+    return f"<p>sum is {result}</p>"
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    print("server is running")
+    app.run(host="0.0.0.0", port=5000)

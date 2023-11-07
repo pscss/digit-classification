@@ -5,3 +5,7 @@ RUN pip install -r requirements.txt
 RUN chmod +x entrypoint.sh
 VOLUME /digits/models
 CMD ["./entrypoint.sh"]
+
+# export variable
+# flask run
+# flask --app main run --host=1.1.1.1:5000
