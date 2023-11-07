@@ -35,6 +35,18 @@ def pred_model():
     return f"<p>sum is {result}</p>"
 
 
+def _read_image(image):
+    # Resize the image to 8x8
+    image = image.resize((64, 64))
+
+    # Convert the image to grayscale (optional)
+    image = image.convert("L")
+
+    # Convert the image to a NumPy array
+    image_array = np.array(image)
+    return preprocess_data(image_array)
+
+
 @app.route("/compare_images", methods=["POST"])
 def compare_images():
     try:
@@ -42,12 +54,14 @@ def compare_images():
         image2 = Image.open(request.files["image2"])
 
         # Preprocess the images and convert them to numpy arrays
-        image1 = np.array(image1.resize((8, 8)))
-        image2 = np.array(image2.resize((8, 8)))
+        image1 = _read_image(image1)
+        image2 = _read_image(image2)
+        # image1 = np.array(image1.resize((8, 8)))
+        # image2 = np.array(image2.resize((8, 8)))
 
-        # Flatten the images to make them compatible with the classifier
-        image1 = image1.reshape(1, -1)
-        image2 = image2.reshape(1, -1)
+        # # Flatten the images to make them compatible with the classifier
+        # image1 = image1.reshape(1, -1)
+        # image2 = image2.reshape(1, -1)
 
         model_path = "models/best_model_C-1_gamma-0.001.joblib"
         svm = load(model_path)
@@ -57,7 +71,7 @@ def compare_images():
         # Compare the predicted digits
         are_same = digit1[0] == digit2[0]
 
-        return jsonify({"are_same": are_same})
+        return f"<p>Images are same: {are_same}.</p>"
     except Exception as e:
         return jsonify({"error": str(e)})
 
