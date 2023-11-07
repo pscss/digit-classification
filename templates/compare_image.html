@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Compare Images</title>
+</head>
+
+<body>
+    <h1>Compare Images</h1>
+    <form action="/compare_images" method="POST" enctype="multipart/form-data">
+        <label for="image1">Image 1:</label>
+        <input type="file" name="image1" accept="image/*" required><br>
+
+        <label for="image2">Image 2:</label>
+        <input type="file" name="image2" accept="image/*" required><br>
+
+        <input type="submit" value="Compare Images">
+    </form>
+</body>
+
+</html>
