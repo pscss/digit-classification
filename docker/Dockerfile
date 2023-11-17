@@ -3,7 +3,8 @@ COPY . /digits/
 WORKDIR /digits
 RUN pip install -r requirements.txt
 RUN chmod +x entrypoint.sh
-VOLUME /digits/models
+# VOLUME /digits/models
+EXPOSE 8000
 CMD ["./entrypoint.sh"]
 
 # export variable
