@@ -1,6 +1,10 @@
 import utils
 from joblib import load
 import os
+import json
+from app import app
+from sklearn import datasets
+import numpy as np
 
 
 def create_dummy_dataset():
@@ -61,9 +65,7 @@ def test_data_splitting():
         y_train,
         y_dev,
         y_test,
-    ) = utils.split_train_dev_test(
-        X, y, test_size=test_size, dev_size=dev_size
-    )
+    ) = utils.split_train_dev_test(X, y, test_size=test_size, dev_size=dev_size)
     print(f"{len(X_train)},{len(X_dev)},{len(X_test)}")
     assert len(X_train) + len(X_dev) + len(X_test) == 100
     assert len(y_train) + len(y_dev) + len(y_test) == 100
@@ -87,3 +89,24 @@ def test_is_model_saved():
     best_model = load(best_model_path)
     assert best_model is not None
     assert accuracy == utils.predict_and_eval(best_model, X_dev, y_dev)
+
+
+def test_get_root():
+    response = app.test_client().get("/")
+    assert response.status_code == 200
+
+
+def test_prediction():
+    digits = datasets.load_digits()
+
+    image_digits = {i: [] for i in range(10)}
+
+    for image, label in zip(digits.images, digits.target):
+        image_digits[label].append(image)
+        assert len(image_digits) == 10
+    for key in image_digits.keys():
+        image_array = utils.preprocess_data(np.array([(image_digits[key][1])]))
+        image_dict = {"image": image_array[0].tolist()}
+        response = app.test_client().post("/prediction", json=json.dumps(image_dict))
+        # this assert is running for 10 times with different images
+        assert int(json.loads(response.data)["prediction"]) == key
