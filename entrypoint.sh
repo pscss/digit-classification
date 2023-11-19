@@ -4,4 +4,6 @@
 pytest
 
 # Run your Python script with hyperparameters
-python exp.py --hyperparameters hyperparameters.json
+# python exp.py --hyperparameters hyperparameters.json
+
+python main.py

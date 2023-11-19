@@ -103,15 +103,17 @@ for run_id in range(number_of_runs):
             print(
                 f"model_type = {clf} test_size={test_size} dev_size={dev_size} train_size={train_size} train_acc={train_accuracy} dev_acc={dev_accuracy} test_acc={test_accuracy}"  # noqa
             )
-            run_result_dict = {
-                "run_id": run_id,
-                "model_type": clf,
-                "train_accuracy": round(train_accuracy, 2),
-                "test_accuracy": round(test_accuracy, 2),
-                "dev_accuracy": round(dev_accuracy, 2),
-            }
-            results_list.append(run_result_dict)
+            # run_result_dict = {
+            #     "run_id": run_id,
+            #     "model_type": clf,
+            #     "train_accuracy": round(train_accuracy, 2),
+            #     "test_accuracy": round(test_accuracy, 2),
+            #     "dev_accuracy": round(dev_accuracy, 2),
+            # }
+            # results_list.append(run_result_dict)
 
-df = pd.DataFrame(results_list)
+# df = pd.DataFrame(results_list)
 # print(df.groupby("model_type").describe().T)
 print("Models trained successfully")
+
+
