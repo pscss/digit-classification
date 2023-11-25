@@ -2,6 +2,7 @@ from PIL import Image
 import numpy as np
 from utils import preprocess_data
 import joblib
+import json
 
 
 from flask import Flask, request, jsonify, render_template
@@ -9,14 +10,14 @@ from flask import Flask, request, jsonify, render_template
 app = Flask(__name__)
 
 
-# @app.route("/")
-# def hello_world():
-#     return render_template("template.html")
-
-
 @app.route("/")
-def index():
-    return render_template("predict.html")
+def hello_world():
+    return render_template("template.html")
+
+
+# @app.route("/")
+# def index():
+#     return render_template("predict.html")
 
 
 # @app.route("/")
@@ -40,19 +41,19 @@ def sum_num(x, y):
 #     return f"<p>sum is {result}</p>"
 
 
-def _read_image(img):
-    img = img.resize((8, 8))  # Resize to 8x8 pixels
-    img = img.convert("L")  # Convert to grayscale
+# def _read_image(img):
+#     img = img.resize((8, 8))  # Resize to 8x8 pixels
+#     img = img.convert("L")  # Convert to grayscale
 
-    # Convert the image to a numpy array and flatten it
-    img_array = np.array(img)
-    image_array = (img_array / 16).astype(int)
-    for i in range(8):
-        for j in range(8):
-            if image_array[i][j] > 0:
-                image_array[i][j] = 16 - image_array[i][j]
-    img_flattened = preprocess_data(np.array([image_array]))
-    return img_flattened
+#     # Convert the image to a numpy array and flatten it
+#     img_array = np.array(img)
+#     image_array = (img_array / 16).astype(int)
+#     for i in range(8):
+#         for j in range(8):
+#             if image_array[i][j] > 0:
+#                 image_array[i][j] = 16 - image_array[i][j]
+#     img_flattened = preprocess_data(np.array([image_array]))
+#     return img_flattened
 
 
 # @app.route("/compare_images", methods=["POST"])
@@ -103,6 +104,23 @@ def predict():
         return jsonify({"prediction": str(prediction[0])})
     else:
         return jsonify({"error": "Invalid file format"})
+
+
+@app.route("/prediction", methods=["POST"])
+def prediction():
+    data_json = request.json
+    if data_json:
+        data_dict = json.loads(data_json)
+        image = np.array([data_dict["image"]])
+        model_path = "models/best_model_C-1_gamma-0.001.joblib"
+        model = joblib.load(model_path)
+        try:
+            prediction = model.predict(image)
+            return jsonify({"prediction": str(prediction[0])})
+        except Exception as e:
+            return jsonify({"error": str(e)})
+    else:
+        return jsonify({"error": "Invalid data format"})
 
 
 if __name__ == "__main__":
