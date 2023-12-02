@@ -41,7 +41,7 @@ parser.add_argument(
     default=0.2,
     help="Size of the development (dev) set",
 )
-parser.add_argument("--num-runs", type=int, default=5, help="Number of runs")
+parser.add_argument("--num-runs", type=int, default=1, help="Number of runs")
 parser.add_argument(
     "--hyperparameters",
     type=str,
@@ -71,7 +71,9 @@ X, y = utils.read_digits()
 # print(f"Shape of the images in (height, width) -> {X.shape[1:]}")
 
 results_list = []
+print(number_of_runs)
 combinations = utils.get_combinations_with_keys(size_grid)
+print(combinations)
 for run_id in range(number_of_runs):
     for combination in combinations:
         test_size = combination["test_size"]

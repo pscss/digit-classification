@@ -1,0 +1,4 @@
+FROM base
+COPY . /digits/
+WORKDIR /digits
+CMD ["pytest"]

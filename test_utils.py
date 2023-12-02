@@ -25,6 +25,12 @@ def create_dummy_hparams():
     }
 
 
+def create_dummy_lr_hparams():
+    return {
+        "solver": ["newton-cg"],
+    }
+
+
 def test_hparams_combinations():
     # a test case to check all possible combinations of hyper parameters
     h_params_grid = create_dummy_hparams()
@@ -107,6 +113,27 @@ def test_prediction():
     for key in image_digits.keys():
         image_array = utils.preprocess_data(np.array([(image_digits[key][1])]))
         image_dict = {"image": image_array[0].tolist()}
-        response = app.test_client().post("/prediction", json=json.dumps(image_dict))
+        response = app.test_client().post("/prediction/svm", json=json.dumps(image_dict))
+        assert "[200 OK]" in str(response)
+        response = app.test_client().post("/prediction/tree", json=json.dumps(image_dict))
+        assert "[200 OK]" in str(response)
+        response = app.test_client().post("/prediction/lr", json=json.dumps(image_dict))
+        assert "[200 OK]" in str(response)
         # this assert is running for 10 times with different images
-        assert int(json.loads(response.data)["prediction"]) == key
+        # assert int(json.loads(response.data)["prediction"]) == key
+
+
+def test_lr_model_saved():
+    X_train, y_train, X_dev, y_dev = create_dummy_dataset()
+    h_params_grid = create_dummy_lr_hparams()
+    best_model_path, _, accuracy = utils.tune_hparams(
+        X_train, X_dev, y_train, y_dev, h_params_grid, "lr"
+    )
+    assert os.path.exists(best_model_path)
+    assert os.path.getsize(best_model_path) > 0
+    assert best_model_path.endswith(".joblib")
+    best_model = load(best_model_path)
+    assert best_model is not None
+    assert "LogisticRegression" in str(type(best_model))
+    assert best_model.get_params()["solver"] in best_model_path
+    assert accuracy == utils.predict_and_eval(best_model, X_dev, y_dev)

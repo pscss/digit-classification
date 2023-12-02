@@ -2,7 +2,7 @@
 
 # Step 1: Build Docker Image
 echo "Building Docker image"
-docker build -t digits:v1 -f docker/Dockerfile .
+docker build -t dependency:v1 -f docker/dependency .
 
 # Step 2: Run Docker Image
 echo "Creating an empty 'save_models' directory"
